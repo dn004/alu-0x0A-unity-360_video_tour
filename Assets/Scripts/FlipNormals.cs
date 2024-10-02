@@ -1,10 +1,7 @@
 using UnityEngine;
-using System.Collections;
 
 public class FlipNormals : MonoBehaviour
 {
-    public GameObject objectToFlip;
-
     void Awake()
     {
         InvertSphere();
@@ -12,21 +9,28 @@ public class FlipNormals : MonoBehaviour
 
     void InvertSphere()
     {
-        Vector3[] normals = objectToFlip.GetComponent<MeshFilter>().mesh.normals;
+        MeshFilter meshFilter = GetComponent<MeshFilter>();
+        
+        if (meshFilter == null || meshFilter.sharedMesh == null)
+        {
+            Debug.LogError("MeshFilter or mesh not found on the object.");
+            return;
+        }
+
+        Vector3[] normals = meshFilter.mesh.normals;
         for (int i = 0; i < normals.Length; i++)
         {
             normals[i] = -normals[i];
         }
-        objectToFlip.GetComponent<MeshFilter>().sharedMesh.normals = normals;
+        meshFilter.sharedMesh.normals = normals;
 
-        int[] triangles = objectToFlip.GetComponent<MeshFilter>().sharedMesh.triangles;
+        int[] triangles = meshFilter.sharedMesh.triangles;
         for (int i = 0; i < triangles.Length; i += 3)
         {
             int t = triangles[i];
             triangles[i] = triangles[i + 2];
             triangles[i + 2] = t;
         }
-
-        objectToFlip.GetComponent<MeshFilter>().sharedMesh.triangles = triangles;
+        meshFilter.sharedMesh.triangles = triangles;
     }
 }
